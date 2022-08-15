@@ -1,23 +1,30 @@
-import { CsvFileReader } from './CsvFileReader';
 import { MatchResult } from './MatchResult';
 import { dateStringToDate } from './utils';
 
 type MatchData = [Date, string, string, number, number, MatchResult, string];
 
-export class MatchReader extends CsvFileReader<MatchData> {
-  constructor(filename: string) {
-    super(filename);
-  }
+interface DataReader {
+  read(): void;
+  data: string[][];
+}
 
-  mapRow(row: string[]): MatchData {
-    return [
-      dateStringToDate(row[0]),
-      row[1],
-      row[2],
-      +row[3],
-      +row[4],
-      row[5] as MatchResult,
-      row[6],
-    ];
+export class MatchReader {
+  matches?: MatchData[];
+
+  constructor(private reader: DataReader) {}
+
+  load(): void {
+    this.reader.read();
+    this.matches = this.reader.data.map((row: string[]): MatchData => {
+      return [
+        dateStringToDate(row[0]),
+        row[1],
+        row[2],
+        +row[3],
+        +row[4],
+        row[5] as MatchResult,
+        row[6],
+      ];
+    });
   }
 }
